@@ -1,0 +1,11 @@
+name: et_master_sc
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pandas
+  - matplotlib
+  - python=3.11
+  - numpy
+  - xarray
+prefix: /home/sc.uni-leipzig.de/nn664dfya/.conda/envs/et_master_sc

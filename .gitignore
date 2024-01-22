@@ -6,5 +6,6 @@ scripts/rasterdata_tests.ipynb
 scripts/SOGA_PY.ipynb
 scripts/SEBAL_Model_meteo_clean_copyBeforeWogele.ipynb
 scripts/pySEBAL_H.ipynb
+scripts/images+analysis/*nbconvert*
 
 

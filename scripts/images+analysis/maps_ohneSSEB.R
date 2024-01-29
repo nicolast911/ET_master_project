@@ -84,10 +84,17 @@ SEBAL_raster <- ggplot(df, aes(x = x, y = y, fill = SEBAL)) +
                     labs(title = paste("SEBAL", date_met),
                          fill = "ETa (mm)") +
                     theme(plot.title = element_text(hjust = 0.5),  # Center the title
-                          plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure
-                          axis.title = element_blank())  # Remove axis Label
+                          plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure / Oben, Rechts, unten, Links
+                          axis.title = element_blank(),
+                          axis.ticks = element_blank(),
+                          axis.text=element_blank(),
+                          legend.position = c(0.1, 0.1),
+                          legend.justification = c("left", "bottom"),
+                          legend.margin = margin(2, 2, 2, 2))  # Remove axis Label
 
-ggsave(SEBAL_raster, filename = paste(path_plots, "/SEBAL_raster.png"))
+
+ggsave(SEBAL_raster, filename = paste(path_plots, "/SEBAL_raster.png"),
+       width = 2.94, height = 5.19, units = "in")
 
 
 
@@ -103,9 +110,17 @@ METRIC_raster <- ggplot(df, aes(x = x, y = y, fill = METRIC)) +
                     labs(title = paste("METRIC", date_met),
                          fill = "ETa (mm)") +
                     theme(plot.title = element_text(hjust = 0.5),  # Center the title
-                          plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure
-                          axis.title = element_blank())  # Remove axis Label
-ggsave(METRIC_raster, filename = paste(path_plots, "/METRIC_raster.png"))
+                          plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure / Oben, Rechts, unten, Links
+                          axis.title = element_blank(),
+                          axis.ticks = element_blank(),
+                          axis.text=element_blank(),
+                          legend.position = c(0.1, 0.1),
+                          legend.justification = c("left", "bottom"),
+                          legend.margin = margin(2, 2, 2, 2))  # Remove axis Label
+
+
+ggsave(METRIC_raster, filename = paste(path_plots, "/METRIC_raster.png"),
+       width = 2.94, height = 5.19, units = "in")
 
 
 
@@ -114,12 +129,20 @@ METRIC_diff <- ggplot(df, aes(x = x, y = y, fill = diff_METRIC)) +
                   scale_fill_scico(palette = "vik", na.value = "transparent", midpoint = 0, limits = c(diff_limits[1], diff_limits[2])) + 
                   theme_bw() +
                   coord_equal() +
-                  labs(title = paste("Difference SEBAL-METRIC", date_met),
+                  labs(title = paste("SEBAL-METRIC", date_met),
                        fill = "ETa (mm)") +
                   theme(plot.title = element_text(hjust = 0.5),  # Center the title
-                        plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure
-                        axis.title = element_blank())  # Remove axis Label
-ggsave(METRIC_diff, filename = paste(path_plots, "/METRIC_diff.png"))
+                        plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure / Oben, Rechts, unten, Links
+                        axis.title = element_blank(),
+                        axis.ticks = element_blank(),
+                        axis.text=element_blank(),
+                        legend.position = c(0.1, 0.1),
+                        legend.justification = c("left", "bottom"),
+                        legend.margin = margin(2, 2, 2, 2))  # Remove axis Label
+
+
+ggsave(METRIC_diff, filename = paste(path_plots, "/METRIC_diff.png"),
+       width = 2.94, height = 5.19, units = "in")
 
 
 
@@ -134,10 +157,18 @@ WASIM_raster <- ggplot(df, aes(x = x, y = y, fill = WASIM)) +
                     coord_equal() +
                     labs(title = paste("WASIM", date_met),
                          fill = "ETa (mm)") +
-                    theme(plot.title = element_text(hjust = 0.5),  # Center the title
-                          plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure
-                          axis.title = element_blank())  # Remove axis Label
-ggsave(WASIM_raster, filename = paste(path_plots, "/WASIM_raster.png"))
+                  theme(plot.title = element_text(hjust = 0.5),  # Center the title
+                        plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure / Oben, Rechts, unten, Links
+                        axis.title = element_blank(),
+                        axis.ticks = element_blank(),
+                        axis.text=element_blank(),
+                        legend.position = c(0.1, 0.1),
+                        legend.justification = c("left", "bottom"),
+                        legend.margin = margin(2, 2, 2, 2))  # Remove axis Label
+
+
+ggsave(WASIM_raster, filename = paste(path_plots, "/WASIM_raster.png"),
+       width = 2.94, height = 5.19, units = "in")
 
 
 
@@ -146,12 +177,18 @@ WASIM_diff <- ggplot(df, aes(x = x, y = y, fill = diff_WASIM)) +
                   scale_fill_scico(palette = "vik", na.value = "transparent", midpoint = 0, limits = c(diff_limits[1], diff_limits[2])) + 
                   theme_bw() +
                   coord_equal() +
-                  labs(title = paste("Difference SEBAL-WASIM", date_met),
+                  labs(title = paste("SEBAL-WASIM", date_met),
                        fill = "ETa (mm)") +
                   theme(plot.title = element_text(hjust = 0.5),  # Center the title
-                        plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure
-                        axis.title = element_blank())  # Remove axis Label
-ggsave(WASIM_diff, filename = paste(path_plots, "/WASIM_diff.png"))
+                        plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Remove space around the figure / Oben, Rechts, unten, Links
+                        axis.title = element_blank(),
+                        axis.ticks = element_blank(),
+                        axis.text=element_blank(),
+                        legend.position = c(0.1, 0.1),
+                        legend.justification = c("left", "bottom"),
+                        legend.margin = margin(2, 2, 2, 2))  # Remove axis Label
+ggsave(WASIM_diff, filename = paste(path_plots, "/WASIM_diff.png"),
+       width = 2.94, height = 5.19, units = "in")
 
 
 

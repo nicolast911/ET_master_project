@@ -5,6 +5,9 @@ library(ggpointdensity)
 
 ### DATES
 
+
+
+
 date_list = c("2015-04-15",
              "2015-07-04",
              "2016-09-08",
@@ -13,14 +16,22 @@ date_list = c("2015-04-15",
              "2018-04-07",
              "2018-09-30",
              "2019-06-29",
-             "2020-03-27",
              "2020-09-19")
+
+# List of Metric Limits 
+METRIC_limit <- c(6, 9, 5, 4.5, 4.5, 4.5, 4, 9, 6)
+  
+  
+  
+  
+# Start of For loop
+# for (i in 1:9)
 
 
 
 # Set date(s) of modeling/data retrieval
 # date <- "2015-07-04"  # Initial LS Picture
-date <- date_list[10]
+date <- date_list[2]
 
 date <- as.Date(date, format = "%Y-%m-%d")
 # Date in meteo_raster_daily Path Format
@@ -65,7 +76,7 @@ sqrt(length(na.omit(df$WASIM)))
 
 # Maximum Limit of Plot axis 
 
-lapply(df_max, max, na.rm=TRUE)
+lapply(df, max, na.rm=TRUE)
 
 df_max_SSEB <- df[, c("SEBAL", "SSEB")]
 max_val_SSEB <-  max(df_max_SSEB, na.rm = TRUE)
@@ -93,7 +104,8 @@ SSEB_scatter <- ggplot(df, aes(x = SEBAL, y = SSEB)) +
 
 SSEB_scatter
 
-ggsave(SSEB_scatter, filename = paste(path_plots, "/SSEB_scatter.png"))
+ggsave(SSEB_scatter, filename = paste(path_plots, "/SSEB_scatter.png"),
+       width = 1564, height = 1635, units = "px")
 
 
 
@@ -111,9 +123,10 @@ METRIC_scatter <- ggplot(df, aes(x = SEBAL, y = METRIC)) +
                       coord_cartesian(xlim = c(0, 6), ylim = c(0, 6)) +                             # Set axis limits MANUAL
                       geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red")  # Add 1:1 line
 
-METRIC_scatter
+#METRIC_scatter
 
-ggsave(METRIC_scatter, filename = paste(path_plots, "/METRIC_scatter.png"))
+ggsave(METRIC_scatter, filename = paste(path_plots, "/METRIC_scatter.png"),
+       width = 1564, height = 1635, units = "px")
 
 
 ########################
@@ -129,9 +142,37 @@ WASIM_scatter <- ggplot(df, aes(x = SEBAL, y = WASIM)) +
                       coord_cartesian(xlim = c(0, max_val_WASIM), ylim = c(0, max_val_WASIM)) +  # Set axis limits AUTOMATICAL
                       #coord_cartesian(xlim = c(0, 4), ylim = c(0, 4)) +                           # Set axis limits MANUAL
                       geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red")  # Add 1:1 line
-WASIM_scatter
+#WASIM_scatter
 
-ggsave(WASIM_scatter, filename = paste(path_plots, "/WASIM_scatter.png"))
+ggsave(WASIM_scatter, filename = paste(path_plots, "/WASIM_scatter.png"),
+       width = 1564, height = 1635, units = "px")
+
+
+
+
+
+########################
+### EXTRA #####
+########################
+# METRIC vs. SSEB
+METRIC_SSEB_scatter <- ggplot(df, aes(x = METRIC, y = SSEB)) +
+  geom_bin2d(bins = 900) +
+  scale_fill_viridis(option = "plasma") +
+  theme_bw() +
+  labs(x = "METRIC",       # Set x-axis label to the column name of x-data
+       y = "SSEB",       # Set y-axis label to the column name of y-data
+       fill = "Count",              # Set legend title to "Count"
+       title = paste("METRIC ~ SSEB", date_met)) +  # Set plot title
+  coord_cartesian(xlim = c(0, 9), ylim = c(0, 9)) +  # Set axis limits AUTOMATICAL
+  #coord_cartesian(xlim = c(0, 4), ylim = c(0, 4)) +                           # Set axis limits MANUAL
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red")  # Add 1:1 line
+
+METRIC_SSEB_scatter
+
+ggsave(METRIC_SSEB_scatter, filename = paste(path_plots, "/METRIC_SSEB_scatter.png"),
+       width = 1564, height = 1635, units = "px")
+
+
 
 
 

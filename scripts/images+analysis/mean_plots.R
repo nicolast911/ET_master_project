@@ -53,7 +53,7 @@ for (date_str in date_list) {
 # Add a NA-column to data frame of 2020-03-27 to make it compatible with the others
 data_frames_list$`2020-03-27` <-  cbind(data_frames_list$`2020-03-27`, c(NA))
 colnames(data_frames_list$`2020-03-27`) <-  c("x", "y", "SEBAL", "METRIC", "WASIM", "diff_METRIC", "diff_WASIM", "SSEB")
-View(data_frames_list$`2020-03-27`)
+
 
 
 
@@ -113,20 +113,18 @@ means_df = cbind(means_df, means_SEBAL)
 means_df = cbind(means_df, means_SSEB)
 means_df = cbind(means_df, means_METRIC)
 means_df = cbind(means_df, means_WASIM)
-View(means_df)
+
 
 sd_df = data.frame("date" = date_list)
 sd_df = cbind(sd_df, sds_SEBAL)
 sd_df = cbind(sd_df, sds_SSEB)
 sd_df = cbind(sd_df, sds_METRIC)
 sd_df = cbind(sd_df, sds_WASIM)
-sd_df
+
 
 
 pivot_means_df = pivot_longer(means_df, cols = 2:5)
 pivot_sd_df = pivot_longer(sd_df, cols = 2:5)
-View(pivot_means_df)
-View(pivot_sd_df)
 pivot_df = cbind(pivot_means_df, pivot_sd_df$value)
 colnames(pivot_df) = c("date", "name", "mean", "sd")
 
@@ -157,12 +155,12 @@ ggplot(pivot_df, aes(x = date, y = mean, color = name, group = name)) +
 
 
 # All in one Plot, Bars
-p<- ggplot(pivot_df, aes(x=date, y=mean, fill=name)) + 
+ggplot(pivot_df, aes(x=date, y=mean, fill=name)) + 
   geom_bar(stat="identity", color="black", 
            position=position_dodge()) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
                 position=position_dodge(.9)) 
-print(p)
+
 
 
 
@@ -178,7 +176,7 @@ ggplot(pivot_df, aes(x = date, y = mean, color = name, group = name)) +
        color = "Name") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~name, scales = "free_y", nrow = 4, dir = "v") +
+  facet_wrap(~factor(name, c("SEBAL", "SSEB", "METRIC", "WASIM")), scales = "free_y", nrow = 4) +
   scale_y_continuous(limits = c(0, 8))
 
 
@@ -192,7 +190,7 @@ ggplot(pivot_df, aes(x = date, y = mean, fill = name, group = name)) +
        fill = "Name") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~name, scales = "free_y", nrow = 4) +
+  facet_wrap(~factor(name, c("SEBAL", "SSEB", "METRIC", "WASIM")), scales = "free_y", nrow = 4) +
   scale_y_continuous(limits = c(0, 8))
 
 

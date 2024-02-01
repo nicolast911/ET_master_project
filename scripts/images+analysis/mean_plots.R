@@ -26,7 +26,9 @@ path_data = "D:/Nicolas_D/Geodaten/Masterarbeit/DATA_MesoHyd_MA-SEBAL/" # Path d
 #path_combined_data = paste(path_data, "Processed/export/combined_data/combined_", date_SSEB, ".csv", sep = "")
 path_LU = "D:/Nicolas_D/Geodaten/Masterarbeit/DATA_MesoHyd_MA-SEBAL/Processed/study_area/LU_raster_combined.csv"
 LU = read.csv(path_LU)
-View(LU)
+
+path_plots = paste(path_data, "Processed/export/R_plots/General", sep = "")
+
 
 data_frames_list <- list()
 
@@ -53,7 +55,7 @@ for (date_str in date_list) {
 # Add a NA-column to data frame of 2020-03-27 to make it compatible with the others
 data_frames_list$`2020-03-27` <-  cbind(data_frames_list$`2020-03-27`, c(NA))
 colnames(data_frames_list$`2020-03-27`) <-  c("x", "y", "SEBAL", "METRIC", "WASIM", "diff_METRIC", "diff_WASIM", "SSEB")
-View(data_frames_list$`2020-03-27`)
+
 
 
 
@@ -113,20 +115,18 @@ means_df = cbind(means_df, means_SEBAL)
 means_df = cbind(means_df, means_SSEB)
 means_df = cbind(means_df, means_METRIC)
 means_df = cbind(means_df, means_WASIM)
-View(means_df)
+
 
 sd_df = data.frame("date" = date_list)
 sd_df = cbind(sd_df, sds_SEBAL)
 sd_df = cbind(sd_df, sds_SSEB)
 sd_df = cbind(sd_df, sds_METRIC)
 sd_df = cbind(sd_df, sds_WASIM)
-sd_df
+
 
 
 pivot_means_df = pivot_longer(means_df, cols = 2:5)
 pivot_sd_df = pivot_longer(sd_df, cols = 2:5)
-View(pivot_means_df)
-View(pivot_sd_df)
 pivot_df = cbind(pivot_means_df, pivot_sd_df$value)
 colnames(pivot_df) = c("date", "name", "mean", "sd")
 
@@ -136,64 +136,96 @@ pivot_df = pivot_df %>%
         mutate(name = str_replace(name, "means_METRIC", "METRIC")) %>%
         mutate(name = str_replace(name, "means_WASIM", "WASIM")) 
   
-
+pivot_df$name <- factor(pivot_df$name, 
+                   levels = c("SEBAL", "SSEB", "METRIC", "WASIM"))
 
 ### PLOT MEANS 
 
 # All in one Plot, Points
-ggplot(pivot_df, aes(x = date, y = mean, color = name, group = name)) +
-  geom_point(size = 3) +
+shape_mapping <- c("SEBAL" = 16, "SSEB" = 17, "METRIC" = 18, "WASIM" = 19)
+
+mean_points <- ggplot(pivot_df, aes(x = date, y = mean, color = name, shape = name, group = name)) +
+  geom_point(size = 5) +
   geom_line() + 
-  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05)) +
-  labs(title = "Line Plot of Values Over Time",
+  labs(title = "ETa Mean per Date",
        x = "Date",
-       y = "Value",
-       color = "Name") +
+       y = "Mean ETa (mm)",
+       color = "Model",
+       shape = "Model") +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5)) # Adjust the size of y-axis title
+
+
+ggsave(mean_points, filename = paste(path_plots, "/mean_points.png", sep = ""),
+       width = 3212, height = 1942, units = "px")
 
 
 
 
-# All in one Plot, Bars
-p<- ggplot(pivot_df, aes(x=date, y=mean, fill=name)) + 
-  geom_bar(stat="identity", color="black", 
-           position=position_dodge()) +
-  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(.9)) 
-print(p)
+### BarPlot With Errorbar
+mean_bars <- ggplot(pivot_df, aes(x=date, y=mean, fill=name)) + 
+  geom_col(position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=0.4,
+                position=position_dodge(0.9)) +
+  labs(title = "ETa Mean and SD per Date",
+       x = "Date",
+       y = "Mean ETa (mm)",
+       fill = "Model") +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  theme_bw() +
+  theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5)) # Adjust the size of y-axis title
+
+
+ggsave(mean_bars, filename = paste(path_plots, "/mean_bars.png", sep = ""),
+       width = 3212, height = 1942, units = "px")
 
 
 
+
+
+####################################################
+####################################################
 # Four Subplots Lines
-ggplot(pivot_df, aes(x = date, y = mean, color = name, group = name)) +
-  geom_point(size = 3) +
-  geom_line() + 
-  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = 0.2,
-                position = position_dodge(0.05)) +
-  labs(title = "Line Plot of Values Over Time",
-       x = "Date",
-       y = "Value",
-       color = "Name") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~name, scales = "free_y", nrow = 4, dir = "v") +
-  scale_y_continuous(limits = c(0, 8))
-
-
-# Four Subplots Bars 
-ggplot(pivot_df, aes(x = date, y = mean, fill = name, group = name)) +
-  geom_bar(stat = "identity", position = "dodge", width = 0.7) +
-  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), position = position_dodge(0.7), width = 0.25) +
-  labs(title = "Bar Plot with Error Bars of Values Over Time",
-       x = "Date",
-       y = "Value",
-       fill = "Name") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~name, scales = "free_y", nrow = 4) +
-  scale_y_continuous(limits = c(0, 8))
+# ggplot(pivot_df, aes(x = date, y = mean, color = name, group = name)) +
+#   geom_point(size = 3) +
+#   geom_line() + 
+#   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = 0.2,
+#                 position = position_dodge(0.05)) +
+#   labs(title = "Line Plot of Values Over Time",
+#        x = "Date",
+#        y = "Value",
+#        color = "Name") +
+#   theme_bw() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   facet_wrap(~factor(name, c("SEBAL", "SSEB", "METRIC", "WASIM")), scales = "free_y", nrow = 4) +
+#   scale_y_continuous(limits = c(0, 8))
+# 
+# 
+# # Four Subplots Bars 
+# ggplot(pivot_df, aes(x = date, y = mean, fill = name, group = name)) +
+#   geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+#   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), position = position_dodge(0.7), width = 0.25) +
+#   labs(title = "Bar Plot with Error Bars of Values Over Time",
+#        x = "Date",
+#        y = "Value",
+#        fill = "Name") +
+#   theme_bw() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   facet_wrap(~factor(name, c("SEBAL", "SSEB", "METRIC", "WASIM")), scales = "free_y", nrow = 4) +
+#   scale_y_continuous(limits = c(0, 8))
 
 
 
@@ -250,14 +282,56 @@ for(df in LU_sd) {
 LU_mean_combined <- bind_rows(LUm_SEBAL, LUm_SSEB, LUm_METRIC, LUm_WASIM)
 LU_sd_combined <- bind_rows(LUsd_SEBAL, LUsd_SSEB, LUsd_METRIC, LUsd_WASIM)
 
+
+
 LU_pivot_df = cbind(LU_mean_combined, LU_sd_combined$sd)
 colnames(LU_pivot_df) = c("LandUse", "date", "mean", "model", "sd")
 LU_pivot_df = LU_pivot_df[,c(2, 4, 1, 3, 5)]
 
 
+# Does not work probably
+LU_pivot_df$model <- factor(LU_pivot_df$model, 
+                        levels = c("SEBAL", "SSEB", "METRIC", "WASIM"))
 
-# Add Land Use names for eacht factor
-LU_names <- c("Agriculture", "Bare Soil", "Grassland", "Urban Area", "Forest")
+# does not work --> revise 
+#LU_pivot_df$LandUse <- factor(LU_pivot_df$LandUse, 
+#                        levels = c("Agriculture", "Bare Soil", "Grassland", "Urban Area", "Forest"))
+
+
+
+##############
+## Find number of observations n
+n_SEBAL <- SEBAL_ts %>%
+  group_by(LandUse) %>%
+  summarise_all(~ sum(!is.na(.))) %>%
+  as.data.frame()
+
+
+n_SSEB <- SSEB_ts %>%
+  group_by(LandUse) %>%
+  summarise_all(~ sum(!is.na(.))) %>%
+  as.data.frame()
+
+
+n_METRIC <- METRIC_ts %>%
+  group_by(LandUse) %>%
+  summarise_all(~ sum(!is.na(.))) %>%
+  as.data.frame()
+
+
+n_WASIM <- WASIM_ts %>%
+  group_by(LandUse) %>%
+  summarise_all(~ sum(!is.na(.))) %>%
+  as.data.frame()
+
+
+Bare 
+
+
+
+########
+# Add Land Use names and n for each factor
+LU_names <- c("Agriculture  (n ≈ 261.000)", "Bare Soil  (n ≈ 600)", "Grassland  (n ≈ 172.000)", "Urban Area  (n ≈ 34.000)", "Forest  (n ≈ 280.000)")
 
 ### PLOT MEANS per Land Use
 
@@ -280,18 +354,34 @@ LU_pivot_df %>%
 
 
 
-# All Factors - 5 Subplots
-LU_pivot_df %>%
+# All Factors - 5 Subplots - REVISION
+mean_LU <- LU_pivot_df %>%
   filter(LandUse %in% 1:5) %>%
-  ggplot(aes(x = date, y = mean, color = model, group = model)) +
-  geom_point(size = 3) +
-  geom_line() + 
-  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05)) +
-  labs(title = "Line Plot of Values Over Time",
+  ggplot(aes(x = date, y = mean, fill = model, group = model)) +
+  geom_col(position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=0.3,
+                position=position_dodge(0.9)) +
+  labs(title = "ETa Mean per Land Use class",
        x = "Date",
-       y = "Value",
-       color = "Name") +
+       y = "Mean ETa (mm)",
+       fill = "Model") +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5),
+        strip.text = element_text(size = 10)) + # Adjust the size of y-axis title
   facet_wrap(~LandUse, scales = "free_y", ncol = 1, labeller = labeller(LandUse = setNames(LU_names, 1:5)))
+  
+mean_LU
+
+
+ggsave(mean_LU, filename = paste(path_plots, "/mean_LU.png", sep = ""),
+       width = 3200, height = 2500, units = "px")
+
+
+
+

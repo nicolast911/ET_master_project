@@ -28,6 +28,7 @@ path_LU = "D:/Nicolas_D/Geodaten/Masterarbeit/DATA_MesoHyd_MA-SEBAL/Processed/st
 LU = read.csv(path_LU)
 
 path_plots = paste(path_data, "Processed/export/R_plots/General", sep = "")
+path_tables = paste(path_data, "Processed/export/R_tables", sep = "")
 
 
 data_frames_list <- list()
@@ -123,12 +124,18 @@ sd_df = cbind(sd_df, sds_SSEB)
 sd_df = cbind(sd_df, sds_METRIC)
 sd_df = cbind(sd_df, sds_WASIM)
 
+# Coefficient of Variation Table 
+cv_df <- means_df
+cv_df[,2:5] <- (sd_df[,2:5] / means_df[,2:5])*100
+
 
 
 pivot_means_df = pivot_longer(means_df, cols = 2:5)
 pivot_sd_df = pivot_longer(sd_df, cols = 2:5)
-pivot_df = cbind(pivot_means_df, pivot_sd_df$value)
-colnames(pivot_df) = c("date", "name", "mean", "sd")
+pivot_cv_df <- pivot_longer(cv_df, cols = 2:5)
+
+pivot_df = cbind(pivot_means_df, pivot_sd_df$value, pivot_cv_df$value)
+colnames(pivot_df) = c("date", "name", "mean", "sd", "CV")
 
 pivot_df = pivot_df %>% 
         mutate(name = str_replace(name, "means_SEBAL", "SEBAL")) %>%
@@ -138,6 +145,12 @@ pivot_df = pivot_df %>%
   
 pivot_df$name <- factor(pivot_df$name, 
                    levels = c("SEBAL", "SSEB", "METRIC", "WASIM"))
+
+
+# Export to csv
+write.csv(means_df, file = paste(path_tables, "/means_df.csv", sep = ""))
+write.csv(sd_df, file = paste(path_tables, "/sd_df.csv", sep = ""))
+write.csv(cv_df, file = paste(path_tables, "/cv_df.csv", sep = ""))
 
 ### PLOT MEANS 
 
@@ -162,6 +175,7 @@ mean_points <- ggplot(pivot_df, aes(x = date, y = mean, color = name, shape = na
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 12.5)) # Adjust the size of y-axis title
 
+mean_points
 
 ggsave(mean_points, filename = paste(path_plots, "/mean_points.png", sep = ""),
        width = 3212, height = 1942, units = "px")
@@ -191,6 +205,35 @@ mean_bars <- ggplot(pivot_df, aes(x=date, y=mean, fill=name)) +
 
 ggsave(mean_bars, filename = paste(path_plots, "/mean_bars.png", sep = ""),
        width = 3212, height = 1942, units = "px")
+
+
+
+
+
+### Coefficient of Variations PLot
+cv_points <- ggplot(pivot_df, aes(x = date, y = CV, color = name, shape = name, group = name)) +
+  geom_point(size = 5) +
+  geom_line() + 
+  labs(title = "ETa Coefficient of Variation",
+       x = "Date",
+       y = "Coefficient of Variation (%)",
+       color = "Model",
+       shape = "Model") +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  theme_bw() +
+  theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5)) # Adjust the size of y-axis title
+
+cv_points
+
+ggsave(cv_points, filename = paste(path_plots, "/cv_points.png", sep = ""),
+       width = 3212, height = 1942, units = "px")
+
 
 
 
@@ -381,6 +424,25 @@ mean_LU
 
 ggsave(mean_LU, filename = paste(path_plots, "/mean_LU.png", sep = ""),
        width = 3200, height = 2500, units = "px")
+
+
+
+#####################
+####################
+# Coefficient of Variation PLot 
+cv_df <- means_df
+cv_df[,2:5] <- (sd_df[,2:5] / means_df[,2:5])*100
+cv_df
+
+
+
+
+
+
+
+
+
+
 
 
 

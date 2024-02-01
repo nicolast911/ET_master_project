@@ -26,7 +26,9 @@ path_data = "D:/Nicolas_D/Geodaten/Masterarbeit/DATA_MesoHyd_MA-SEBAL/" # Path d
 #path_combined_data = paste(path_data, "Processed/export/combined_data/combined_", date_SSEB, ".csv", sep = "")
 path_LU = "D:/Nicolas_D/Geodaten/Masterarbeit/DATA_MesoHyd_MA-SEBAL/Processed/study_area/LU_raster_combined.csv"
 LU = read.csv(path_LU)
-View(LU)
+
+path_plots = paste(path_data, "Processed/export/R_plots/General", sep = "")
+
 
 data_frames_list <- list()
 
@@ -134,64 +136,96 @@ pivot_df = pivot_df %>%
         mutate(name = str_replace(name, "means_METRIC", "METRIC")) %>%
         mutate(name = str_replace(name, "means_WASIM", "WASIM")) 
   
-
+pivot_df$name <- factor(pivot_df$name, 
+                   levels = c("SEBAL", "SSEB", "METRIC", "WASIM"))
 
 ### PLOT MEANS 
 
 # All in one Plot, Points
-ggplot(pivot_df, aes(x = date, y = mean, color = name, group = name)) +
-  geom_point(size = 3) +
+shape_mapping <- c("SEBAL" = 16, "SSEB" = 17, "METRIC" = 18, "WASIM" = 19)
+
+mean_points <- ggplot(pivot_df, aes(x = date, y = mean, color = name, shape = name, group = name)) +
+  geom_point(size = 5) +
   geom_line() + 
-  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(0.05)) +
-  labs(title = "Line Plot of Values Over Time",
+  labs(title = "ETa Mean per Date",
        x = "Date",
-       y = "Value",
-       color = "Name") +
+       y = "Mean ETa (mm)",
+       color = "Model",
+       shape = "Model") +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5)) # Adjust the size of y-axis title
+
+
+ggsave(mean_points, filename = paste(path_plots, "/mean_points.png", sep = ""),
+       width = 3212, height = 1942, units = "px")
 
 
 
 
-# All in one Plot, Bars
-ggplot(pivot_df, aes(x=date, y=mean, fill=name)) + 
-  geom_bar(stat="identity", color="black", 
-           position=position_dodge()) +
-  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
-                position=position_dodge(.9)) 
+### BarPlot With Errorbar
+mean_bars <- ggplot(pivot_df, aes(x=date, y=mean, fill=name)) + 
+  geom_col(position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=0.4,
+                position=position_dodge(0.9)) +
+  labs(title = "ETa Mean and SD per Date",
+       x = "Date",
+       y = "Mean ETa (mm)",
+       fill = "Model") +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  theme_bw() +
+  theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5)) # Adjust the size of y-axis title
+
+
+ggsave(mean_bars, filename = paste(path_plots, "/mean_bars.png", sep = ""),
+       width = 3212, height = 1942, units = "px")
 
 
 
 
+
+####################################################
+####################################################
 # Four Subplots Lines
-ggplot(pivot_df, aes(x = date, y = mean, color = name, group = name)) +
-  geom_point(size = 3) +
-  geom_line() + 
-  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = 0.2,
-                position = position_dodge(0.05)) +
-  labs(title = "Line Plot of Values Over Time",
-       x = "Date",
-       y = "Value",
-       color = "Name") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~factor(name, c("SEBAL", "SSEB", "METRIC", "WASIM")), scales = "free_y", nrow = 4) +
-  scale_y_continuous(limits = c(0, 8))
-
-
-# Four Subplots Bars 
-ggplot(pivot_df, aes(x = date, y = mean, fill = name, group = name)) +
-  geom_bar(stat = "identity", position = "dodge", width = 0.7) +
-  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), position = position_dodge(0.7), width = 0.25) +
-  labs(title = "Bar Plot with Error Bars of Values Over Time",
-       x = "Date",
-       y = "Value",
-       fill = "Name") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~factor(name, c("SEBAL", "SSEB", "METRIC", "WASIM")), scales = "free_y", nrow = 4) +
-  scale_y_continuous(limits = c(0, 8))
+# ggplot(pivot_df, aes(x = date, y = mean, color = name, group = name)) +
+#   geom_point(size = 3) +
+#   geom_line() + 
+#   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = 0.2,
+#                 position = position_dodge(0.05)) +
+#   labs(title = "Line Plot of Values Over Time",
+#        x = "Date",
+#        y = "Value",
+#        color = "Name") +
+#   theme_bw() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   facet_wrap(~factor(name, c("SEBAL", "SSEB", "METRIC", "WASIM")), scales = "free_y", nrow = 4) +
+#   scale_y_continuous(limits = c(0, 8))
+# 
+# 
+# # Four Subplots Bars 
+# ggplot(pivot_df, aes(x = date, y = mean, fill = name, group = name)) +
+#   geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+#   geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), position = position_dodge(0.7), width = 0.25) +
+#   labs(title = "Bar Plot with Error Bars of Values Over Time",
+#        x = "Date",
+#        y = "Value",
+#        fill = "Name") +
+#   theme_bw() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   facet_wrap(~factor(name, c("SEBAL", "SSEB", "METRIC", "WASIM")), scales = "free_y", nrow = 4) +
+#   scale_y_continuous(limits = c(0, 8))
 
 
 
@@ -253,6 +287,16 @@ colnames(LU_pivot_df) = c("LandUse", "date", "mean", "model", "sd")
 LU_pivot_df = LU_pivot_df[,c(2, 4, 1, 3, 5)]
 
 
+# Does not work probably
+LU_pivot_df$model <- factor(LU_pivot_df$model, 
+                        levels = c("SEBAL", "SSEB", "METRIC", "WASIM"))
+
+# does not work --> revise 
+LU_pivot_df$LandUse <- factor(LU_pivot_df$LandUse, 
+                        levels = c("Agriculture", "Bare Soil", "Grassland", "Urban Area", "Forest"))
+
+
+
 
 # Add Land Use names for eacht factor
 LU_names <- c("Agriculture", "Bare Soil", "Grassland", "Urban Area", "Forest")
@@ -293,3 +337,49 @@ LU_pivot_df %>%
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_wrap(~LandUse, scales = "free_y", ncol = 1, labeller = labeller(LandUse = setNames(LU_names, 1:5)))
+
+
+# All Factors - 5 Subplots - REVISION
+LU_pivot_df %>%
+  filter(LandUse %in% 1:5) %>%
+  ggplot(aes(x = date, y = mean, color = model, group = model)) +
+  geom_col(position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=0.4,
+                position=position_dodge(0.9)) +
+  labs(title = "ETa Mean and SD per Date",
+       x = "Date",
+       y = "Mean ETa (mm)",
+       fill = "Model") +
+  theme_bw() +
+  theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5)) + # Adjust the size of y-axis title
+facet_wrap(~LandUse, scales = "free_y", ncol = 1, labeller = labeller(LandUse = setNames(LU_names, 1:5)))
+
+
+
+# All Factors - 5 Subplots - REVISION
+ggplot(pivot_df, aes(x=date, y=mean, fill=name)) + 
+  geom_col(position=position_dodge()) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=0.4,
+                position=position_dodge(0.9)) +
+  labs(title = "ETa Mean and SD per Date",
+       x = "Date",
+       y = "Mean ETa (mm)",
+       fill = "Model") +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  theme_bw() +
+  theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5)) # Adjust the size of y-axis title
+
+
+

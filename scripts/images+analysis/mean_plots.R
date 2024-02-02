@@ -152,10 +152,17 @@ write.csv(means_df, file = paste(path_tables, "/means_df.csv", sep = ""))
 write.csv(sd_df, file = paste(path_tables, "/sd_df.csv", sep = ""))
 write.csv(cv_df, file = paste(path_tables, "/cv_df.csv", sep = ""))
 
-### PLOT MEANS 
+##########################################################################
+###### PLOT MEANS 
+##########################################################################
+
 
 # All in one Plot, Points
-shape_mapping <- c("SEBAL" = 16, "SSEB" = 17, "METRIC" = 18, "WASIM" = 19)
+shape_mapping <- c("SEBAL" = 16, "SSEB" = 17, "METRIC" = 18, "WASIM" = 15)
+#model_color <- c("SEBAL" = "#D55E00", "SSEB" = "#009f60", "METRIC" = "#E69F00", "WASIM" = "#0072B2")
+# More s/w readability/contrast
+model_color <- c("SEBAL" = "#841157", "SSEB" = "#009f60", "METRIC" = "#E69F00", "WASIM" = "#0072B2")
+
 
 mean_points <- ggplot(pivot_df, aes(x = date, y = mean, color = name, shape = name, group = name)) +
   geom_point(size = 5) +
@@ -166,6 +173,7 @@ mean_points <- ggplot(pivot_df, aes(x = date, y = mean, color = name, shape = na
        color = "Model",
        shape = "Model") +
   scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  scale_color_manual(values = model_color) +  # Set colors manually
   theme_bw() +
   theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
         axis.title.y = element_text(size = 12.5),
@@ -193,6 +201,7 @@ mean_bars <- ggplot(pivot_df, aes(x=date, y=mean, fill=name)) +
        y = "Mean ETa (mm)",
        fill = "Model") +
   scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  scale_fill_manual(values = model_color) +  # Set colors manually
   theme_bw() +
   theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
         axis.title.y = element_text(size = 12.5),
@@ -202,6 +211,7 @@ mean_bars <- ggplot(pivot_df, aes(x=date, y=mean, fill=name)) +
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 12.5)) # Adjust the size of y-axis title
 
+mean_bars
 
 ggsave(mean_bars, filename = paste(path_plots, "/mean_bars.png", sep = ""),
        width = 3212, height = 1942, units = "px")
@@ -220,6 +230,7 @@ cv_points <- ggplot(pivot_df, aes(x = date, y = CV, color = name, shape = name, 
        color = "Model",
        shape = "Model") +
   scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  scale_color_manual(values = model_color) +  # Set colors manually
   theme_bw() +
   theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
         axis.title.y = element_text(size = 12.5),
@@ -322,14 +333,35 @@ for(df in LU_sd) {
   assign(df, df.tmp)
 }
 
+
+
+
+
 LU_mean_combined <- bind_rows(LUm_SEBAL, LUm_SSEB, LUm_METRIC, LUm_WASIM)
 LU_sd_combined <- bind_rows(LUsd_SEBAL, LUsd_SSEB, LUsd_METRIC, LUsd_WASIM)
 
 
+## Add Strings of Land use Class
+string_vector <- c("Agriculture", "Bare Soil", "Grassland", "Urban Area", "Forest")
+LU_mean_combined <- LU_mean_combined %>%
+  mutate(LandUse_name = case_when(
+    LandUse == 1 ~ string_vector[1],
+    LandUse == 2 ~ string_vector[2],
+    LandUse == 3 ~ string_vector[3],
+    LandUse == 4 ~ string_vector[4],
+    LandUse == 5 ~ string_vector[5]
+  ))
+
+
+
+## Export as .csv
+write.csv(LU_mean_combined, file = paste(path_tables, "/means_LU_df.csv", sep = ""))
+write.csv(LU_sd_combined, file = paste(path_tables, "/sd_LU_df.csv", sep = ""))
+
 
 LU_pivot_df = cbind(LU_mean_combined, LU_sd_combined$sd)
-colnames(LU_pivot_df) = c("LandUse", "date", "mean", "model", "sd")
-LU_pivot_df = LU_pivot_df[,c(2, 4, 1, 3, 5)]
+colnames(LU_pivot_df) = c("LandUse", "date", "mean", "model", "LandUse_name", "sd")
+LU_pivot_df = LU_pivot_df[,c(2, 4, 1, 5, 3, 6)]
 
 
 # Does not work probably
@@ -337,8 +369,8 @@ LU_pivot_df$model <- factor(LU_pivot_df$model,
                         levels = c("SEBAL", "SSEB", "METRIC", "WASIM"))
 
 # does not work --> revise 
-#LU_pivot_df$LandUse <- factor(LU_pivot_df$LandUse, 
-#                        levels = c("Agriculture", "Bare Soil", "Grassland", "Urban Area", "Forest"))
+LU_pivot_df$LandUse_name <- factor(LU_pivot_df$LandUse_name, 
+                        levels = c("Agriculture", "Bare Soil", "Grassland", "Urban Area", "Forest"))
 
 
 
@@ -368,7 +400,7 @@ n_WASIM <- WASIM_ts %>%
   as.data.frame()
 
 
-Bare 
+
 
 
 
@@ -404,11 +436,12 @@ mean_LU <- LU_pivot_df %>%
   geom_col(position=position_dodge()) +
   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=0.3,
                 position=position_dodge(0.9)) +
-  labs(title = "ETa Mean per Land Use class",
+  labs(title = "ETa Mean per Land Use",
        x = "Date",
        y = "Mean ETa (mm)",
        fill = "Model") +
   theme_bw() +
+  scale_fill_manual(values = model_color) +  # Set colors manually
   theme(axis.title.x = element_text(size = 12.5),  # Adjust the size of x-axis title
         axis.title.y = element_text(size = 12.5),
         plot.title = element_text(size = 14.5),
@@ -426,24 +459,131 @@ ggsave(mean_LU, filename = paste(path_plots, "/mean_LU.png", sep = ""),
        width = 3200, height = 2500, units = "px")
 
 
-
-#####################
-####################
-# Coefficient of Variation PLot 
-cv_df <- means_df
-cv_df[,2:5] <- (sd_df[,2:5] / means_df[,2:5])*100
-cv_df
+### END 
 
 
+##############################################################################################
+##############################################################################################
+## Next Take:
+# PLot for each Model a Land Use differentiated Mean Plot
 
+shape_mapping <- c("Agriculture" = 16, "Bare Soil" = 20, "Grassland" = 18, "Urban Area" = 15, "Forest" = 17)
 
-
-
-
-
-
+# Define custom colors for LandUse_name factors
+#land_use_colors <- c("Agriculture" =  "#F0E442", "Bare Soil" = "#616161", "Grassland" = "lightgreen", "Urban Area" ="#DC697D", "Forest" =  "#337538")
+# Viridis Adaption
+land_use_colors <- c("Agriculture" =  "#FDE725FF", "Bare Soil" = "#616161", "Grassland" = "#7AD151FF", "Urban Area" ="#DC697D", "Forest" =  "#337538")
 
 
 
+SEBAL_LU <- LU_pivot_df %>%
+  filter(model == "SEBAL") %>%  
+  ggplot(aes(x = date, y = mean, color = LandUse_name, shape = LandUse_name, group = LandUse_name)) +
+  geom_point(size = 7) +
+  geom_line() + 
+  labs(title = "SEBAL Mean ETa per Land Use",
+       x = "Date",
+       y = "Mean ETa (mm)",
+       color = "Land Use",
+       shape = "Land Use") +  
+  theme_bw() +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  scale_color_manual(values = land_use_colors) +  # Set custom colors for LandUse_name
+  theme(axis.title.x = element_text(size = 12.5),
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5))
+SEBAL_LU
+
+ggsave(SEBAL_LU, filename = paste(path_plots, "/SEBAL_LU.png", sep = ""),
+       width = 3212, height = 1942, units = "px")
+
+
+######
+
+SSEB_LU <- LU_pivot_df %>%
+  filter(model == "SSEB") %>%  
+  ggplot(aes(x = date, y = mean, color = LandUse_name, shape = LandUse_name, group = LandUse_name)) +
+  geom_point(size = 7) +
+  geom_line() + 
+  labs(title = "SSEB Mean ETa per Land Use",
+       x = "Date",
+       y = "Mean ETa (mm)",
+       color = "Land Use",
+       shape = "Land Use") +  
+  theme_bw() +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  scale_color_manual(values = land_use_colors) +  # Set custom colors for LandUse_name
+  theme(axis.title.x = element_text(size = 12.5),
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5))
+
+
+ggsave(SSEB_LU, filename = paste(path_plots, "/SSEB_LU.png", sep = ""),
+       width = 3212, height = 1942, units = "px")
+
+######
+
+
+METRIC_LU <- LU_pivot_df %>%
+  filter(model == "METRIC") %>%  
+  ggplot(aes(x = date, y = mean, color = LandUse_name, shape = LandUse_name, group = LandUse_name)) +
+  geom_point(size = 7) +
+  geom_line() + 
+  labs(title = "METRIC Mean ETa per Land Use",
+       x = "Date",
+       y = "Mean ETa (mm)",
+       color = "Land Use",
+       shape = "Land Use") +  
+  theme_bw() +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  scale_color_manual(values = land_use_colors) +  # Set custom colors for LandUse_name
+  theme(axis.title.x = element_text(size = 12.5),
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5))
+
+
+ggsave(METRIC_LU, filename = paste(path_plots, "/METRIC_LU.png", sep = ""),
+       width = 3212, height = 1942, units = "px")
+
+
+#######
+
+
+WASIM_LU <- LU_pivot_df %>%
+  filter(model == "WASIM") %>%  
+  ggplot(aes(x = date, y = mean, color = LandUse_name, shape = LandUse_name, group = LandUse_name)) +
+  geom_point(size = 7) +
+  geom_line() + 
+  labs(title = "WASIM Mean ETa per Land Use",
+       x = "Date",
+       y = "Mean ETa (mm)",
+       color = "Land Use",
+       shape = "Land Use") +  
+  theme_bw() +
+  scale_shape_manual(values = shape_mapping) +  # Set shapes manually
+  scale_color_manual(values = land_use_colors) +  # Set custom colors for LandUse_name
+  theme(axis.title.x = element_text(size = 12.5),
+        axis.title.y = element_text(size = 12.5),
+        plot.title = element_text(size = 14.5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12.5))
+
+
+ggsave(WASIM_LU, filename = paste(path_plots, "/WASIM_LU.png", sep = ""),
+       width = 3212, height = 1942, units = "px")
 
 

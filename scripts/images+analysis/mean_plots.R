@@ -337,6 +337,8 @@ for(df in LU_sd) {
 
 
 
+
+
 LU_mean_combined <- bind_rows(LUm_SEBAL, LUm_SSEB, LUm_METRIC, LUm_WASIM)
 LU_sd_combined <- bind_rows(LUsd_SEBAL, LUsd_SSEB, LUsd_METRIC, LUsd_WASIM)
 

@@ -8,7 +8,7 @@ library(viridis)
 library(sf)
 library(scico)
 library(gridExtra)
-library("scatterplot3d") 
+
 
 # for SPAEF
 library(pracma)
@@ -73,7 +73,7 @@ SEBAL_ts <- result_list[["SEBAL_ts"]]
 SSEB_ts <- result_list[["SSEB_ts"]]
 METRIC_ts <- result_list[["METRIC_ts"]]
 WASIM_ts <- result_list[["WASIM_ts"]]
-rm(c(df, result_list))
+rm(df, result_list)
 
 ######################################################
 ######################################################
@@ -269,16 +269,35 @@ METRIC_WASIM["Models"] <- "METRIC_WASIM"
 
 
 
-#### SAVE Spaed dfs
+#### SAVE Spaef dfs
 path_spaef = paste(path_data, "Processed/export/R_tables/SPAEF", sep = "")
 
-write.csv(SEBAL_SSEB, file = paste(path_spaef, "/SEBAL_SSEB.csv", sep = ""))
-write.csv(SEBAL_METRIC, file = paste(path_spaef, "/SEBAL_METRIC.csv", sep = ""))
-write.csv(SEBAL_WASIM, file = paste(path_spaef, "/SEBAL_WASIM.csv", sep = ""))
+write.csv(SEBAL_SSEB, file = paste(path_spaef, "/SEBAL_SSEB.csv", sep = ""), row.names=FALSE)
+write.csv(SEBAL_METRIC, file = paste(path_spaef, "/SEBAL_METRIC.csv", sep = ""), row.names=FALSE)
+write.csv(SEBAL_WASIM, file = paste(path_spaef, "/SEBAL_WASIM.csv", sep = ""), row.names=FALSE)
 
-write.csv(SSEB_METRIC, file = paste(path_spaef, "/SSEB_METRIC.csv", sep = ""))
-write.csv(SSEB_WASIM, file = paste(path_spaef, "/SSEB_WASIM.csv", sep = ""))
-write.csv(METRIC_WASIM, file = paste(path_spaef, "/METRIC_WASIM.csv", sep = ""))
+write.csv(SSEB_METRIC, file = paste(path_spaef, "/SSEB_METRIC.csv", sep = ""), row.names=FALSE)
+write.csv(SSEB_WASIM, file = paste(path_spaef, "/SSEB_WASIM.csv", sep = ""), row.names=FALSE)
+write.csv(METRIC_WASIM, file = paste(path_spaef, "/METRIC_WASIM.csv", sep = ""), row.names=FALSE)
+
+########################################
+########################################
+### LOAD SPAEF CSVs
+path_data = "D:/Nicolas_D/Geodaten/Masterarbeit/DATA_MesoHyd_MA-SEBAL/" # Path data NICOLAS-PC
+path_spaef <- paste(path_data, "Processed/export/R_tables/SPAEF/", sep = "")
+
+# Load each CSV file
+SEBAL_SSEB <- read.csv(file.path(path_spaef, "SEBAL_SSEB.csv"),)
+SEBAL_METRIC <- read.csv(file.path(path_spaef, "SEBAL_METRIC.csv"))
+SEBAL_WASIM <- read.csv(file.path(path_spaef, "SEBAL_WASIM.csv"))
+
+SSEB_METRIC <- read.csv(file.path(path_spaef, "SSEB_METRIC.csv"))
+SSEB_WASIM <- read.csv(file.path(path_spaef, "SSEB_WASIM.csv"))
+METRIC_WASIM <- read.csv(file.path(path_spaef, "METRIC_WASIM.csv"))
+
+
+
+
 
 ########################################
 ########################################
@@ -360,11 +379,12 @@ spaef_heatmap <- spaef_pivot %>%
         legend.title = element_text(size = 12.5)) # Adjust the size of y-axis title
 
 
+spaef_heatmap
+
 
 path_spaef_plots = paste(path_data, "Processed/export/R_plots/SPAEF", sep = "")
-
 ggsave(spaef_heatmap, filename = paste(path_spaef_plots, "/spaef_heatmap.png", sep = ""),
-       width = 3212, height = 1942, units = "px")
+       width = 3400, height = 1942, units = "px")
   
 
 

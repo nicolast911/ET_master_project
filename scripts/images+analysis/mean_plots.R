@@ -7,7 +7,7 @@ library(scico)
 library(gridExtra)
 
 
-### DATES without 2020-03
+### DATES 
 
 date_list = c("2015-04-15",
               "2015-07-04",

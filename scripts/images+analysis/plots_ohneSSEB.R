@@ -80,7 +80,7 @@ max_val_WASIM <-  max(df_max_WASIM, na.rm = TRUE)
 # METRIC
 
 # Calculate Measures
-rsquared <- cor(df$METRIC, df$SEBAL, use = "complete.obs")
+rsquared <- (cor(df$METRIC, df$SEBAL, use = "complete.obs"))^2
 rmse <- sqrt(mean((df$METRIC - df$SEBAL)^2, na.rm = TRUE))
 rel_rmse <- (rmse / mean(df$METRIC, na.rm = TRUE)) *100
 
@@ -115,7 +115,7 @@ ggsave(METRIC_scatter, filename = paste(path_plots, "/METRIC_scatter.png"),
 # WASIM
 
 # Calculate Measures
-rsquared <- cor(df$WASIM, df$SEBAL, use = "complete.obs")
+rsquared <- (cor(df$WASIM, df$SEBAL, use = "complete.obs"))^2
 rmse <- sqrt(mean((df$WASIM - df$SEBAL)^2, na.rm = TRUE))
 rel_rmse <- (rmse / mean(df$WASIM, na.rm = TRUE)) *100
 

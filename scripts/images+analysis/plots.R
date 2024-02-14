@@ -98,7 +98,7 @@ for (i in 1:9) {
   # SSEB
   
   # Calculate Measures
-  rsquared <- cor(df$SSEB, df$SEBAL, use = "complete.obs")
+  rsquared <- (cor(df$SSEB, df$SEBAL, use = "complete.obs"))^2
   rmse <- sqrt(mean((df$SSEB - df$SEBAL)^2, na.rm = TRUE))
   rel_rmse <- (rmse / mean(df$SSEB, na.rm = TRUE)) *100
   
@@ -134,7 +134,7 @@ for (i in 1:9) {
   # METRIC
   
   # Calculate Measures
-  rsquared <- cor(df$METRIC, df$SEBAL, use = "complete.obs")
+  rsquared <- (cor(df$METRIC, df$SEBAL, use = "complete.obs"))^2
   rmse <- sqrt(mean((df$METRIC - df$SEBAL)^2, na.rm = TRUE))
   rel_rmse <- (rmse / mean(df$METRIC, na.rm = TRUE)) *100
   
@@ -170,7 +170,7 @@ for (i in 1:9) {
   # WASIM
   
   # Calculate Measures
-  rsquared <- cor(df$WASIM, df$SEBAL, use = "complete.obs")
+  rsquared <- (cor(df$WASIM, df$SEBAL, use = "complete.obs"))^2
   rmse <- sqrt(mean((df$WASIM - df$SEBAL)^2, na.rm = TRUE))
   rel_rmse <- (rmse / mean(df$WASIM, na.rm = TRUE)) *100
   
@@ -211,7 +211,7 @@ for (i in 1:9) {
   # METRIC vs. SSEB
   
   # Calculate Measures
-  rsquared <- cor(df$SSEB, df$METRIC, use = "complete.obs")
+  rsquared <- (cor(df$SSEB, df$METRIC, use = "complete.obs"))^2
   rmse <- sqrt(mean((df$SSEB - df$METRIC)^2, na.rm = TRUE))
   rel_rmse <- (rmse / mean(df$SSEB, na.rm = TRUE)) *100
   

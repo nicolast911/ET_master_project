@@ -1,8 +1,11 @@
 library(tidyverse)
 library(raster)
+library(rgdal)
 library(lubridate)
 library(viridis)
-
+library(sf)
+library(scico)
+library(gridExtra)
 
 
 # Load LandUse Map
